@@ -40,7 +40,7 @@ public class P2 {
         }
 
         PriorityQueue<Node> queue =
-            new PriorityQueue<>((a, b) -> Integer.compare(a.freq, b.freq));
+            new PriorityQueue<>((a, b) -> a.freq - b.freq);
 
         for (int i = 0; i < n; i++) {
             System.out.print("Enter character and frequency: ");
@@ -90,14 +90,10 @@ C : 10
 D : 11
 
 NOTE:
-Huffman codes can differ when frequencies tie, but the code lengths
-and total encoding cost remain optimal.
-
-Time complexity : O(n log n)
-Space complexity: O(n)
+Time Complexity: O(n log n)
+Space Complexity: O(n)
 
 RUN:
 javac P2.java
 java P2
-
 */
