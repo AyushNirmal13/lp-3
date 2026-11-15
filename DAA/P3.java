@@ -3,13 +3,13 @@ import java.util.*;
 public class P3 {
 
     static class Item {
-        int weight, value;
+        int wt, val;
         double ratio;
 
-        Item(int weight, int value) {
-            this.weight = weight;
-            this.value = value;
-            ratio = (double) value / weight;
+        Item(int wt, int val) {
+            this.wt = wt;
+            this.val = val;
+            ratio = (double) val / wt;
         }
     }
 
@@ -20,7 +20,7 @@ public class P3 {
         int n = sc.nextInt();
 
         if (n <= 0) {
-            System.out.println("Invalid number of items");
+            System.out.println("Invalid input");
             sc.close();
             return;
         }
@@ -29,22 +29,22 @@ public class P3 {
 
         for (int i = 0; i < n; i++) {
             System.out.print("Enter weight and value: ");
-            int weight = sc.nextInt();
-            int value = sc.nextInt();
+            int wt = sc.nextInt();
+            int val = sc.nextInt();
 
-            if (weight <= 0 || value < 0) {
+            if (wt <= 0 || val < 0) {
                 System.out.println("Invalid input");
                 sc.close();
                 return;
             }
 
-            items[i] = new Item(weight, value);
+            items[i] = new Item(wt, val);
         }
 
         System.out.print("Enter knapsack capacity: ");
-        int capacity = sc.nextInt();
+        int W = sc.nextInt();
 
-        if (capacity < 0) {
+        if (W < 0) {
             System.out.println("Invalid capacity");
             sc.close();
             return;
@@ -53,23 +53,24 @@ public class P3 {
         // Sort items by value/weight ratio
         Arrays.sort(items, (a, b) -> Double.compare(b.ratio, a.ratio));
 
-        double totalValue = 0;
+        double total = 0;
 
         // Fill the knapsack
         for (Item item : items) {
-            if (capacity == 0)
+            if (W == 0)
                 break;
 
-            if (item.weight <= capacity) {
-                totalValue += item.value;
-                capacity -= item.weight;
+            if (item.wt <= W) {
+                total += item.val;
+                W -= item.wt;
             } else {
-                totalValue += item.ratio * capacity;
-                capacity = 0;
+                total += item.ratio * W;
+                W = 0;
             }
         }
 
-        System.out.println("Maximum value: " + totalValue);
+        System.out.println("Maximum value: " + total);
+
         sc.close();
     }
 }
@@ -84,6 +85,10 @@ SAMPLE INPUT:
 
 SAMPLE OUTPUT:
 Maximum value: 240.0
+
+NOTE:
+Time Complexity: O(n log n)
+Space Complexity: O(n)
 
 RUN:
 javac P3.java
