@@ -1,54 +1,46 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import LinearSVC
-from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+from sklearn.metrics import (
+    accuracy_score,
+    confusion_matrix,
+    classification_report
+)
 
 # Load dataset
-data = pd.read_csv("spam.csv", encoding="latin-1")
+data = pd.read_csv("emails.csv")
 
-# Select required columns
-data = data[["v1", "v2"]].dropna()
-data.columns = ["label", "email"]
-
-# Convert labels into numbers
-data["label"] = data["label"].str.lower().map({
-    "ham": 0,
-    "spam": 1
-})
-data = data.dropna()
-
-X = data["email"]
-y = data["label"].astype(int)
+# Separate input and output
+X = data.drop(["Email No.", "Prediction"], axis=1)
+y = data["Prediction"]
 
 # Split dataset
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.2, random_state=42, stratify=y
 )
 
+# Scale data for KNN
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
 # Create KNN model
-knn = make_pipeline(
-    TfidfVectorizer(),
-    KNeighborsClassifier(n_neighbors=5)
-)
+knn = KNeighborsClassifier(n_neighbors=5)
 
 # Create SVM model
-svm = make_pipeline(
-    TfidfVectorizer(),
-    LinearSVC()
-)
+svm = LinearSVC(max_iter=5000, random_state=42)
 
 # Train models
-knn.fit(X_train, y_train)
+knn.fit(X_train_scaled, y_train)
 svm.fit(X_train, y_train)
 
 # Make predictions
-knn_pred = knn.predict(X_test)
+knn_pred = knn.predict(X_test_scaled)
 svm_pred = svm.predict(X_test)
 
-# Compare performance
+# KNN Performance
 print("\nKNN Performance")
 print("Accuracy:", accuracy_score(y_test, knn_pred))
 print("Confusion Matrix:")
@@ -59,6 +51,7 @@ print(classification_report(
     zero_division=0
 ))
 
+# SVM Performance
 print("\nSVM Performance")
 print("Accuracy:", accuracy_score(y_test, svm_pred))
 print("Confusion Matrix:")
@@ -69,30 +62,29 @@ print(classification_report(
     zero_division=0
 ))
 
-# Predict a new message using SVM
-email = input("Enter an email message: ")
-result = svm.predict([email])[0]
-
-if result == 1:
-    print("Spam Email")
-else:
-    print("Normal Email")
-
 
 # -----------------------------------------
 # SAMPLE INPUT:
-# Dataset: spam.csv
-# Enter an email message:
-# Congratulations! You have won a free prize.
+# Dataset: emails.csv
+# No manual input required.
 #
 # SAMPLE OUTPUT:
+#
 # KNN Performance
 # Accuracy: (Calculated value)
+# Confusion Matrix:
+# [[... ...]
+#  [... ...]]
+#
 # SVM Performance
 # Accuracy: (Calculated value)
-# Enter an email message:
-# Congratulations! You have won a free prize.
-# Spam Email
+# Confusion Matrix:
+# [[... ...]
+#  [... ...]]
+#
+# Classification Report:
+# Precision, Recall and F1-score
+# for Normal and Spam classes.
 #
 # INSTALL:
 # python -m pip install pandas scikit-learn
