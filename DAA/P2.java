@@ -98,6 +98,6 @@ Space complexity: O(n)
 
 RUN:
 javac P2.java
-java P2/
+java P2
 
 */
