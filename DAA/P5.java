@@ -3,51 +3,35 @@ import java.util.Scanner;
 public class P5 {
 
     static int n;
-    static int[][] board;
+    static int[] q;  // q[row] = column of the queen in that row
 
-    // Check whether queen can be placed
+    // Check whether placing a queen is safe
     static boolean isSafe(int row, int col) {
-        // Check column
-        for (int i = 0; i < row; i++) {
-            if (board[i][col] == 1)
+        for (int r = 0; r < row; r++) {
+            if (q[r] == col || Math.abs(q[r] - col) == row - r) {
                 return false;
+            }
         }
-
-        // Check upper-left diagonal
-        for (int i = row - 1, j = col - 1;
-             i >= 0 && j >= 0; i--, j--) {
-            if (board[i][j] == 1)
-                return false;
-        }
-
-        // Check upper-right diagonal
-        for (int i = row - 1, j = col + 1;
-             i >= 0 && j < n; i--, j++) {
-            if (board[i][j] == 1)
-                return false;
-        }
-
         return true;
     }
 
-    // Solve using backtracking
+    // Place queens row by row using backtracking
     static boolean solve(int row) {
-        if (row == n)
+        if (row == n) {
             return true;
+        }
 
         for (int col = 0; col < n; col++) {
             if (isSafe(row, col)) {
-                board[row][col] = 1;
+                q[row] = col;
 
-                if (solve(row + 1))
+                if (solve(row + 1)) {
                     return true;
-
-                // Backtracking
-                board[row][col] = 0;
+                }
             }
         }
 
-        return false;
+        return false;  // Backtrack if no position works
     }
 
     public static void main(String[] args) {
@@ -62,8 +46,6 @@ public class P5 {
             return;
         }
 
-        board = new int[n][n];
-
         System.out.print("Enter first queen column (1 to " + n + "): ");
         int col = sc.nextInt();
 
@@ -73,15 +55,15 @@ public class P5 {
             return;
         }
 
-        // Place first queen
-        board[0][col - 1] = 1;
+        q = new int[n];
+        q[0] = col - 1;  // Place first queen in row 0
 
         if (solve(1)) {
             System.out.println("N-Queens Matrix:");
 
             for (int i = 0; i < n; i++) {
                 for (int j = 0; j < n; j++) {
-                    System.out.print(board[i][j] + " ");
+                    System.out.print((q[i] == j ? 1 : 0) + " ");
                 }
                 System.out.println();
             }
@@ -104,6 +86,12 @@ N-Queens Matrix:
 1 0 0 0
 0 0 0 1
 0 1 0 0
+
+NOTE:
+1 represents a queen and 0 represents an empty position.
+The first queen is placed in row 0 at the column entered.
+Backtracking: if no column works in a row, return to the
+previous row and try another column.
 
 RUN:
 javac P5.java
