@@ -1,44 +1,45 @@
-// 0-1 Knapsack (Dynamic Programming)
+// 0-1 Knapsack using Recursion + Memoization (take / skip)
 #include <iostream>
+#include <cstring>
 using namespace std;
+
+int dp[51][101];   // dp[n][W], -1 means not solved yet
+
+int solve(int n, int wt[], int pr[], int W) {
+    // base case: no items left or no capacity left
+    if (n == 0 || W == 0)
+        return 0;
+
+    // already solved? return stored answer
+    if (dp[n][W] != -1)
+        return dp[n][W];
+
+    // item n-1 fits in the bag: choose between take and skip
+    if (wt[n - 1] <= W) {
+        int take = pr[n - 1] + solve(n - 1, wt, pr, W - wt[n - 1]);
+        int skip = solve(n - 1, wt, pr, W);
+        return dp[n][W] = max(take, skip);
+    }
+
+    // item too heavy: must skip
+    return dp[n][W] = solve(n - 1, wt, pr, W);
+}
 
 int main() {
     int n, W;
     cout << "Enter number of items: ";
     cin >> n;
 
-    int weight[50], profit[50];
+    int wt[50], pr[50];
     cout << "Enter weight and profit of each item:\n";
-    for (int i = 1; i <= n; i++)
-        cin >> weight[i] >> profit[i];
+    for (int i = 0; i < n; i++)
+        cin >> wt[i] >> pr[i];
     cout << "Enter knapsack capacity: ";
     cin >> W;
 
-    int dp[51][101];   // dp[i][w] = best profit using first i items with capacity w
+    memset(dp, -1, sizeof(dp));   // fill whole table with -1
 
-    for (int i = 0; i <= n; i++) {
-        for (int w = 0; w <= W; w++) {
-            if (i == 0 || w == 0)
-                dp[i][w] = 0;
-            else if (weight[i] <= w)
-                dp[i][w] = max(dp[i - 1][w], profit[i] + dp[i - 1][w - weight[i]]);
-            else
-                dp[i][w] = dp[i - 1][w];
-        }
-    }
-
-    cout << "\nMaximum profit = " << dp[n][W] << endl;
-
-    // find which items were picked
-    cout << "Items selected: ";
-    int w = W;
-    for (int i = n; i >= 1; i--) {
-        if (dp[i][w] != dp[i - 1][w]) {
-            cout << i << " ";
-            w -= weight[i];
-        }
-    }
-    cout << endl;
+    cout << "\nMaximum profit = " << solve(n, wt, pr, W) << endl;
     return 0;
 }
 
