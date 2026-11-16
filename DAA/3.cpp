@@ -44,3 +44,18 @@ int main() {
     cout << "\nMaximum profit = " << totalProfit << endl;
     return 0;
 }
+
+
+
+
+
+// Enter number of items: 4
+// Enter weight and profit of each item:
+// 10 60
+// 20 100
+// 30 120
+// 15 75
+
+// Enter knapsack capacity: 50
+
+// Maximum profit = 255
