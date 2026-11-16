@@ -39,6 +39,7 @@ plt.scatter(
     X_scaled[:, 1],
     c=data["Cluster"]
 )
+plt.colorbar(label="Cluster")
 
 plt.xlabel("Sales (scaled)")
 plt.ylabel("Quantity Ordered (scaled)")
