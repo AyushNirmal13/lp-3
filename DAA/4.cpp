@@ -56,4 +56,4 @@ int main() {
 // Enter knapsack capacity: 50
 
 // Maximum profit = 235
-// Items selected: 4 2 1 
+
