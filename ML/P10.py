@@ -1,45 +1,46 @@
+# K-Means Clustering on sales_data_sample.csv with Elbow Method
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import KMeans
 
-# Load dataset
-data = pd.read_csv("sales_data_sample.csv", encoding="cp1252")
+# read data (file has special characters, so use latin1)
+df = pd.read_csv("sales_data_sample.csv", encoding="latin1")
 
-# Select Sales and Quantity columns only
-X = data[["SALES", "QUANTITYORDERED"]]
+# choose numeric columns for clustering
+cols = ["QUANTITYORDERED", "PRICEEACH", "SALES", "MSRP"]
+data = df[cols].dropna()
 
-if len(X) < 3:
-    print("Not enough data for clustering")
-    exit()
+# scale the data so all columns have equal importance
+X = StandardScaler().fit_transform(data)
 
-# Fill missing values
-X = X.fillna(X.median())
+# ---------- Elbow method ----------
+inertia = []
+for k in range(1, 11):
+    km = KMeans(n_clusters=k, random_state=1, n_init=10)
+    km.fit(X)
+    inertia.append(km.inertia_)
 
-# Scale data
-scaler = StandardScaler()
-X_scaled = scaler.fit_transform(X)
+plt.plot(range(1, 11), inertia, marker="o")
+plt.xlabel("Number of clusters (k)")
+plt.ylabel("Inertia")
+plt.title("Elbow Method")
+plt.show()
 
-# Create K-Means model
-model = KMeans(n_clusters=3, random_state=42, n_init=10)
+# ---------- Final model (pick k from the elbow, usually 3 or 4) ----------
+k = 3
+km = KMeans(n_clusters=k, random_state=1, n_init=10)
+data = data.copy()
+data["Cluster"] = km.fit_predict(X)
 
-# Perform clustering
-data["Cluster"] = model.fit_predict(X_scaled)
+print(data["Cluster"].value_counts())
+print(data.groupby("Cluster").mean())
 
-# Display results
-print("Clustered Sales Data:")
-print(data[["ORDERNUMBER", "SALES", "QUANTITYORDERED", "Cluster"]].head())
-
-print("\nCluster Count:")
-print(data["Cluster"].value_counts().sort_index())
-
-# Plot clusters
-plt.scatter(
-    X_scaled[:, 0],
-    X_scaled[:, 1],
-    c=data["Cluster"]
-)
-plt.colorbar(label="Cluster")
+plt.scatter(data["QUANTITYORDERED"], data["SALES"], c=data["Cluster"])
+plt.xlabel("Quantity Ordered")
+plt.ylabel("Sales")
+plt.title("K-Means Clusters")
+plt.show()
 
 plt.xlabel("Sales (scaled)")
 plt.ylabel("Quantity Ordered (scaled)")

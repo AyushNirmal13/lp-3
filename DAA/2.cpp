@@ -1,55 +1,89 @@
-// Job Sequencing with Deadlines (Greedy)
 #include <iostream>
+#include <vector>
 #include <algorithm>
 using namespace std;
 
-struct Job {
-    char id;
-    int deadline;
-    int profit;
-};
-
-// sort by profit, highest first
-bool compare(Job a, Job b) {
-    return a.profit > b.profit;
-}
-
 int main() {
     int n;
-    cout << "Enter number of jobs: ";
     cin >> n;
 
-    Job jobs[50];
-    cout << "Enter job id, deadline, profit:\n";
-    for (int i = 0; i < n; i++)
-        cin >> jobs[i].id >> jobs[i].deadline >> jobs[i].profit;
+    // Each item stores: {frequency, "characters"}
+    vector<pair<int, string>> list(n);
+    string code[256]; // Stores final binary code for each ASCII character
 
-    sort(jobs, jobs + n, compare);
-
-    // find max deadline = number of slots
-    int maxDeadline = 0;
-    for (int i = 0; i < n; i++)
-        maxDeadline = max(maxDeadline, jobs[i].deadline);
-
-    char slot[50];
-    bool filled[50] = {false};
-    int totalProfit = 0;
-
+    // Step 1: Read input
     for (int i = 0; i < n; i++) {
-        // try the latest free slot on or before the deadline
-        for (int j = jobs[i].deadline - 1; j >= 0; j--) {
-            if (!filled[j]) {
-                filled[j] = true;
-                slot[j] = jobs[i].id;
-                totalProfit += jobs[i].profit;
-                break;
-            }
+        char ch;
+        cin >> ch >> list[i].first;
+        list[i].second = ch; // Convert single char to string
+    }
+
+    // Special case: Only 1 character
+    if (n == 1) {
+        char singleChar = list[0].second[0];
+        code[singleChar] = "0";
+    }
+
+    // Step 2: Keep merging the 2 smallest items until 1 remains
+    while (list.size() > 1) {
+        sort(list.begin(), list.end()); // Smallest two move to index 0 and 1
+
+        // Add '0' in front of all characters in the 1st smallest group
+        for (char c : list[0].second) {
+            code[c] = "0" + code[c];
+        }
+
+        // Add '1' in front of all characters in the 2nd smallest group
+        for (char c : list[1].second) {
+            code[c] = "1" + code[c];
+        }
+
+        // Merge item 0 and item 1 into item 0
+        list[0].first += list[1].first;     // Add frequencies
+        list[0].second += list[1].second;   // Combine character strings
+
+        // Remove item 1
+        list.erase(list.begin() + 1);
+    }
+
+    // Step 3: Print all generated codes
+    for (int i = 0; i < 256; i++) {
+        if (code[i] != "") {
+            cout << char(i) << " : " << code[i] << endl;
         }
     }
 
-    cout << "\nJob sequence: ";
-    for (int i = 0; i < maxDeadline; i++)
-        if (filled[i]) cout << slot[i] << " ";
-    cout << "\nTotal profit = " << totalProfit << endl;
     return 0;
-}
+} 
+
+
+
+//input 
+// 6
+// a 5
+// b 9
+// c 12
+// d 13
+// e 16
+// f 45
+
+
+
+// output 
+// a : 1100
+// b : 1101
+// c : 100
+// d : 101
+// e : 111
+// f : 0
+
+
+
+
+
+
+
+
+
+
+    
