@@ -1,5 +1,5 @@
-// P13: Bank Account Smart Contract
 
+// P13: Bank Account Smart Contract
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
@@ -36,39 +36,50 @@ contract BankAccount {
 }
 
 /*
-SAMPLE TESTING:
-
-1. Deploy the BankAccount contract.
-2. Call deposit() with Value = 1 Ether.
-3. Call showBalance().
-
-Expected balance:
-1000000000000000000 wei
-
-4. Call withdraw() with amount:
-200000000000000000
-
-5. Call showBalance() again.
-
-Expected balance:
-800000000000000000 wei
-
 HOW TO COMPILE AND RUN:
 
 1. Open https://remix.ethereum.org
-2. Create a file named P11.sol.
-3. Paste this program.
-4. Select Solidity compiler 0.8.20.
-5. Compile P11.sol.
-6. Open Deploy & Run Transactions.
-7. Select Injected Provider - MetaMask.
-8. Connect MetaMask to Sepolia test network.
-9. Deploy the contract.
-10. Test deposit(), withdraw() and showBalance().
+2. Open File Explorer and create a file named P13.sol.
+3. Paste this complete program and save it (Ctrl + S).
+4. Open Solidity Compiler from the left sidebar.
+5. Select compiler version 0.8.20.
+6. Click Compile P13.sol.
+7. Open Deploy & Run Transactions.
+8. Select Environment: Remix VM.
+9. Select Contract: BankAccount.
+10. Set Value = 0 wei and click Deploy.
+11. Expand BankAccount under Deployed Contracts.
 
-IMPORTANT:
-- Use test ETH only.
-- Never share your wallet password or seed phrase.
-- deposit() and withdraw() require gas.
-- showBalance() is a read-only function.
+FUNCTION EXECUTION:
+
+1. DEPOSIT:
+   - Find the Value field at the bottom.
+   - Enter 1 and select Ether as the unit.
+   - Click Transact beside deposit().
+
+2. CHECK BALANCE:
+   - Click Call beside showBalance().
+   - Expected Output: 1000000000000000000 Wei.
+
+3. WITHDRAW:
+   - Change the bottom Value field to 0 wei.
+   - Enter 200000000000000000 in the amount field of withdraw().
+   - Click Transact.
+
+4. CHECK FINAL BALANCE:
+   - Click Call beside showBalance().
+   - Expected Output: 800000000000000000 Wei.
+
+EXPECTED RESULTS:
+
+Initial Deposit = 1 Ether
+Withdrawal = 0.2 Ether
+Remaining Balance = 0.8 Ether
+
+IMPORTANT NOTES:
+- Remix VM uses simulated Ether; no real money is involved.
+- Use the same account for all operations.
+- deposit() and withdraw() use Transact.
+- showBalance() uses Call.
+- No MetaMask or Sepolia connection is required for this practical.
 */
