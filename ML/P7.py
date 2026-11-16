@@ -12,6 +12,9 @@ from sklearn.metrics import (
 # Load dataset
 data = pd.read_csv("emails.csv")
 
+# Remove rows with missing Prediction values
+data = data.dropna(subset=["Prediction"])
+
 # Separate input and output
 X = data.drop(["Email No.", "Prediction"], axis=1)
 y = data["Prediction"]
