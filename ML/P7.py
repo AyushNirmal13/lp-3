@@ -1,46 +1,69 @@
-# Email Spam Detection: KNN vs SVM
 import pandas as pd
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.svm import SVC
-from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+from sklearn.svm import LinearSVC
+from sklearn.metrics import (
+    accuracy_score,
+    confusion_matrix,
+    classification_report
+)
 
-# read data
-df = pd.read_csv("emails.csv")
-print(df.shape)
-print(df["Prediction"].value_counts())      # 0 = Not Spam, 1 = Spam
+# Load dataset
+data = pd.read_csv("emails.csv")
 
-# features and target
-X = df.drop(["Email No.", "Prediction"], axis=1)
-y = df["Prediction"]
+# Remove rows with missing Prediction values
+data = data.dropna(subset=["Prediction"])
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=1)
+# Separate input and output
+X = data.drop(["Email No.", "Prediction"], axis=1)
+y = data["Prediction"]
 
-# ---------- KNN ----------
+# Split dataset
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=y
+)
+
+# Scale data for KNN
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+# Create KNN model
 knn = KNeighborsClassifier(n_neighbors=5)
-knn.fit(X_train, y_train)
-knn_pred = knn.predict(X_test)
 
-# ---------- SVM ----------
-svm = SVC(kernel="linear")
+# Create SVM model
+svm = LinearSVC(max_iter=5000, random_state=42)
+
+# Train models
+knn.fit(X_train_scaled, y_train)
 svm.fit(X_train, y_train)
+
+# Make predictions
+knn_pred = knn.predict(X_test_scaled)
 svm_pred = svm.predict(X_test)
 
-# ---------- Results ----------
-print("\n===== KNN =====")
+# KNN Performance
+print("\nKNN Performance")
 print("Accuracy:", accuracy_score(y_test, knn_pred))
+print("Confusion Matrix:")
 print(confusion_matrix(y_test, knn_pred))
-print(classification_report(y_test, knn_pred))
+print(classification_report(
+    y_test, knn_pred,
+    target_names=["Normal", "Spam"],
+    zero_division=0
+))
 
-print("\n===== SVM =====")
+# SVM Performance
+print("\nSVM Performance")
 print("Accuracy:", accuracy_score(y_test, svm_pred))
+print("Confusion Matrix:")
 print(confusion_matrix(y_test, svm_pred))
-print(classification_report(y_test, svm_pred))
-
-if accuracy_score(y_test, svm_pred) > accuracy_score(y_test, knn_pred):
-    print("\nSVM performed better")
-else:
-    print("\nKNN performed better")
+print(classification_report(
+    y_test, svm_pred,
+    target_names=["Normal", "Spam"],
+    zero_division=0
+))
 
 
 # -----------------------------------------

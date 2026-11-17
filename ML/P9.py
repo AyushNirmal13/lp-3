@@ -1,42 +1,67 @@
-# K-Nearest Neighbors on diabetes.csv
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.metrics import confusion_matrix, accuracy_score, precision_score, recall_score
+from sklearn.metrics import (
+    confusion_matrix,
+    accuracy_score,
+    precision_score,
+    recall_score
+)
 
-# 1. LOAD
-df = pd.read_csv("diabetes.csv")
-print(df.head())
+# Load dataset
+data = pd.read_csv("diabetes.csv")
 
-# 2. CLEAN: 0 is impossible in these columns, so treat it as missing
-#    and fill it with the column median
-cols = ["Glucose", "BloodPressure", "SkinThickness", "Insulin", "BMI"]
-for c in cols:
-    df[c] = df[c].replace(0, df[c].median())
+# Separate input and output
+X = data.drop("Outcome", axis=1)
+y = data["Outcome"]
 
-# 3. X and y (Outcome: 1 = diabetic, 0 = not diabetic)
-X = df.drop("Outcome", axis=1)
-y = df["Outcome"]
+# Replace invalid zero values with missing values
+cols = [
+    "Glucose", "BloodPressure",
+    "SkinThickness", "Insulin", "BMI"
+]
+X[cols] = X[cols].replace(0, float("nan"))
 
-# 4. SPLIT and SCALE (KNN uses distance, so scaling is important)
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=1)
+# Split dataset before filling missing values
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=y
+)
+
+# Fill missing values using training data median only
+median = X_train.median()
+X_train = X_train.fillna(median)
+X_test = X_test.fillna(median)
+
+# Scale data
 scaler = StandardScaler()
 X_train = scaler.fit_transform(X_train)
 X_test = scaler.transform(X_test)
 
-# 5. MODEL
-knn = KNeighborsClassifier(n_neighbors=5)
-knn.fit(X_train, y_train)
-pred = knn.predict(X_test)
+# Create KNN model
+model = KNeighborsClassifier(n_neighbors=5)
 
-# 6. EVALUATE
-acc = accuracy_score(y_test, pred)
-print("\nConfusion Matrix:\n", confusion_matrix(y_test, pred))
-print("Accuracy   :", acc)
-print("Error rate :", 1 - acc)
-print("Precision  :", precision_score(y_test, pred))
-print("Recall     :", recall_score(y_test, pred))
+# Train model
+model.fit(X_train, y_train)
+
+# Predict results
+predictions = model.predict(X_test)
+
+# Calculate performance
+cm = confusion_matrix(y_test, predictions)
+accuracy = accuracy_score(y_test, predictions)
+error = 1 - accuracy
+precision = precision_score(y_test, predictions, zero_division=0)
+recall = recall_score(y_test, predictions, zero_division=0)
+
+# Display results
+print("Confusion Matrix:")
+print(cm)
+print("Accuracy:", accuracy)
+print("Error Rate:", error)
+print("Precision:", precision)
+print("Recall:", recall)
+
 
 # -----------------------------------------
 # SAMPLE INPUT:
